@@ -1,0 +1,3 @@
+ens_tostain_guillaume_homepage:
+    path:     /
+    defaults: { _controller: EnsTostainGuillaumeBundle:Default:index }
