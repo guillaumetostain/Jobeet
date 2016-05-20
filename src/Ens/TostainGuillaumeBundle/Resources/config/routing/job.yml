@@ -4,9 +4,11 @@ job_index:
     methods:  GET
 
 job_show:
-    path:     /{id}/show
+    path:     /{company}/{location}/{id}/{position}
     defaults: { _controller: "EnsTostainGuillaumeBundle:Job:show" }
     methods:  GET
+    requirements:
+            id:  \d+
 
 job_new:
     path:     /new

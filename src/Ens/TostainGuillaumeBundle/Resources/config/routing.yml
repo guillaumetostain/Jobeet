@@ -3,5 +3,5 @@ ens_tostain_guillaume_job:
     prefix:   /job
 
 ens_tostain_guillaume_homepage:
-    path:     /hello/{name}
-    defaults: { _controller: EnsTostainGuillaumeBundle:Default:index }
+    path:     /
+    defaults: { _controller: EnsTostainGuillaumeBundle:Job:index }
