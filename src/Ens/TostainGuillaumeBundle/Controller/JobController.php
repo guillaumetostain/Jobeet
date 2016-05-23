@@ -52,10 +52,10 @@ class JobController extends Controller
             $em->persist($job);
             $em->flush();
 
-            return $this->redirect($this->generateUrl('job_show', array(
+            return $this->redirect($this->generateUrl('job_preview', array(
                 'company' => $job->getCompanySlug(),
                 'location' => $job->getLocationSlug(),
-                'id' => $job->getId(),
+                'token' => $job->getToken(),
                 'position' => $job->getPositionSlug()
             )));
         }
@@ -124,7 +124,7 @@ class JobController extends Controller
             $em->persist($job);
             $em->flush();
 
-            return $this->redirect($this->generateUrl('job_edit', array('token' => $token)));
+            return $this->redirect($this->generateUrl('job_preview', array('token' => $token)));
         }
 
         return $this->render('EnsTostainGuillaumeBundle:Job:edit.html.twig', array(
@@ -165,6 +165,62 @@ class JobController extends Controller
      * @return \Symfony\Component\Form\Form The form
      */
     private function createDeleteForm($token)
+    {
+        return $this->createFormBuilder(array('token' => $token))
+            ->add('token', 'hidden')
+            ->getForm()
+            ;
+    }
+
+    public function previewAction($token)
+    {
+        $em = $this->getDoctrine()->getManager();
+
+        $job = $em->getRepository('EnsTostainGuillaumeBundle:Job')->findOneByToken($token);
+
+        if (!$job) {
+            throw $this->createNotFoundException('Unable to find Job entity.');
+        }
+
+        $deleteForm = $this->createDeleteForm($job->getId());
+        $publishForm = $this->createPublishForm($job->getToken());
+
+        return $this->render('EnsTostainGuillaumeBundle:job:show.html.twig', array(
+            'job'      => $job,
+            'delete_form' => $deleteForm->createView(),
+            'publish_form' => $publishForm->createView(),
+        ));
+    }
+
+    public function publishAction(Request $request, $token)
+    {
+        $form = $this->createPublishForm($token);
+        $form->handleRequest($request);
+
+        if ($form->isSubmitted() && $form->isValid()) {
+            $em = $this->getDoctrine()->getManager();
+            $job = $em->getRepository('EnsTostainGuillaumeBundle:Job')->findOneByToken($token);
+
+            if (!$job) {
+                throw $this->createNotFoundException('Unable to find Job entity.');
+            }
+
+            $job->publish();
+            $em->persist($job);
+            $em->flush();
+
+            $this->get('session')->getFlashBag()->set('notice', 'Your job is now online for 30 days.');
+        }
+
+        return $this->redirect($this->generateUrl('job_preview', array(
+            'company' => $job->getCompanySlug(),
+            'location' => $job->getLocationSlug(),
+            'token' => $job->getToken(),
+            'position' => $job->getPositionSlug()
+        )));
+    }
+
+    private function createPublishForm($token)
     {
         return $this->createFormBuilder(array('token' => $token))
             ->add('token', 'hidden')

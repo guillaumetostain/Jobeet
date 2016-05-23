@@ -29,3 +29,14 @@ job_delete:
     path:     /{token}/delete
     defaults: { _controller: "EnsTostainGuillaumeBundle:Job:delete" }
     methods:  DELETE
+
+job_preview:
+    path:  /{company}/{location}/{token}/{position}
+    defaults: { _controller: "EnsTostainGuillaumeBundle:Job:preview" }
+    requirements:
+        token:  \w+
+
+job_publish:
+    path:  /{token}/publish
+    defaults: { _controller: "EnsTostainGuillaumeBundle:Job:publish" }
+    methods: POST

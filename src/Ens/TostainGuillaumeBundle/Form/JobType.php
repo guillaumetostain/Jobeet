@@ -24,7 +24,6 @@ class JobType extends AbstractType
             ->add('description')
             ->add('email')
             ->add('type', 'choice', array('choices' => Job::getTypes(), 'expanded' => true))
-            ->add('logo', null, array('label' => 'Company logo'))
             ->add('how_to_apply', null, array('label' => 'How to apply?'))
             ->add('is_public', null, array('label' => 'Public?'))
             ->add('file', 'file', array('label' => 'Company logo', 'required' => false))
