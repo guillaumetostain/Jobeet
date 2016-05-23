@@ -95,6 +95,14 @@ class JobController extends Controller
         $em = $this->getDoctrine()->getManager();
         $job = $em->getRepository('EnsTostainGuillaumeBundle:Job')->findOneByToken($token);
 
+        if (!$job) {
+            throw $this->createNotFoundException('Unable to find Job entity.');
+        }
+
+        if ($job->getIsActivated()) {
+            throw $this->createNotFoundException('Job is activated and cannot be edited.');
+        }
+
         $editForm = $this->createForm(new JobType(), $job);
         $deleteForm = $this->createDeleteForm($token);
 
@@ -124,7 +132,12 @@ class JobController extends Controller
             $em->persist($job);
             $em->flush();
 
-            return $this->redirect($this->generateUrl('job_preview', array('token' => $token)));
+            return $this->redirect($this->generateUrl('job_preview', array(
+                'company' => $job->getCompanySlug(),
+                'location' => $job->getLocationSlug(),
+                'token' => $job->getToken(),
+                'position' => $job->getPositionSlug()
+            )));
         }
 
         return $this->render('EnsTostainGuillaumeBundle:Job:edit.html.twig', array(
@@ -184,11 +197,13 @@ class JobController extends Controller
 
         $deleteForm = $this->createDeleteForm($job->getId());
         $publishForm = $this->createPublishForm($job->getToken());
+        $extendForm = $this->createExtendForm($job->getToken());
 
         return $this->render('EnsTostainGuillaumeBundle:job:show.html.twig', array(
             'job'      => $job,
             'delete_form' => $deleteForm->createView(),
             'publish_form' => $publishForm->createView(),
+            'extend_form' => $extendForm->createView()
         ));
     }
 
@@ -221,6 +236,45 @@ class JobController extends Controller
     }
 
     private function createPublishForm($token)
+    {
+        return $this->createFormBuilder(array('token' => $token))
+            ->add('token', 'hidden')
+            ->getForm()
+            ;
+    }
+
+    public function extendAction(Request $request, $token)
+    {
+        $form = $this->createExtendForm($token);
+        $form->handleRequest($request);
+
+        if ($form->isSubmitted() && $form->isValid()) {
+            $em = $this->getDoctrine()->getManager();
+            $job = $em->getRepository('EnsTostainGuillaumeBundle:Job')->findOneByToken($token);
+
+            if (!$job) {
+                throw $this->createNotFoundException('Unable to find Job entity.');
+            }
+
+            if (!$job->extend()) {
+                throw $this->createNotFoundException('Unable to find extend the Job.');
+            }
+
+            $em->persist($job);
+            $em->flush();
+
+            $this->get('session')->getFlashBag()->set('notice', sprintf('Your job validity has been extended until %s.', $job->getExpiresAt()->format('m/d/Y')));
+        }
+
+        return $this->redirect($this->generateUrl('job_preview', array(
+            'company' => $job->getCompanySlug(),
+            'location' => $job->getLocationSlug(),
+            'token' => $job->getToken(),
+            'position' => $job->getPositionSlug()
+        )));
+    }
+
+    private function createExtendForm($token)
     {
         return $this->createFormBuilder(array('token' => $token))
             ->add('token', 'hidden')

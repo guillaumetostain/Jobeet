@@ -40,3 +40,8 @@ job_publish:
     path:  /{token}/publish
     defaults: { _controller: "EnsTostainGuillaumeBundle:Job:publish" }
     methods: POST
+
+job_extend:
+    path:  /{token}/extend
+    defaults: { _controller: "EnsTostainGuillaumeBundle:Job:extend" }
+    methods: POST
