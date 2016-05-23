@@ -16,11 +16,16 @@ job_new:
     methods:  [GET, POST]
 
 job_edit:
-    path:     /{id}/edit
+    path:     /{token}/edit
     defaults: { _controller: "EnsTostainGuillaumeBundle:Job:edit" }
     methods:  [GET, POST]
 
+job_update:
+    path:  /{token}/update
+    defaults: { _controller: "EnsTostainGuillaumeBundle:Job:update" }
+    methods: POST
+
 job_delete:
-    path:     /{id}/delete
+    path:     /{token}/delete
     defaults: { _controller: "EnsTostainGuillaumeBundle:Job:delete" }
     methods:  DELETE

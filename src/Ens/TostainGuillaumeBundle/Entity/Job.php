@@ -95,6 +95,7 @@ class Job
      */
     private $category;
 
+    public $file;
 
     /**
      * Get id
@@ -513,6 +514,82 @@ class Job
         {
             $now = $this->getCreatedAt() ? $this->getCreatedAt()->format('U') : time();
             $this->expires_at = new \DateTime(date('Y-m-d H:i:s', $now + 86400 * 30));
+        }
+    }
+
+    public static function getTypes()
+    {
+        return array('full-time' => 'Full time', 'part-time' => 'Part time', 'freelance' => 'Freelance');
+    }
+
+    public static function getTypeValues()
+    {
+        return array_keys(self::getTypes());
+    }
+
+    protected function getUploadDir()
+    {
+        return 'uploads/jobs';
+    }
+
+    protected function getUploadRootDir()
+    {
+        return __DIR__.'/../../../../web/'.$this->getUploadDir();
+    }
+
+    public function getWebPath()
+    {
+        return null === $this->logo ? null : $this->getUploadDir().'/'.$this->logo;
+    }
+
+    public function getAbsolutePath()
+    {
+        return null === $this->logo ? null : $this->getUploadRootDir().'/'.$this->logo;
+    }
+
+    /**
+     * @ORM\PrePersist
+     */
+    public function preUpload()
+    {
+        if (null !== $this->file) {
+            // do whatever you want to generate a unique name
+            $this->logo = uniqid().'.'.$this->file->guessExtension();
+        }
+    }
+
+    /**
+     * @ORM\PostPersist
+     */
+    public function upload()
+    {
+        if (null === $this->file) {
+            return;
+        }
+
+        // if there is an error when moving the file, an exception will
+        // be automatically thrown by move(). This will properly prevent
+        // the entity from being persisted to the database on error
+        $this->file->move($this->getUploadRootDir(), $this->logo);
+
+        unset($this->file);
+    }
+
+    /**
+     * @ORM\PostRemove
+     */
+    public function removeUpload()
+    {
+        if ($file = $this->getAbsolutePath()) {
+            unlink($file);
+        }
+    }
+
+    public function setTokenValue()
+    {
+        if(!$this->getToken())
+        {
+            $this->token = sha1($this->getEmail().rand(11111, 99999));
         }
     }
 }
