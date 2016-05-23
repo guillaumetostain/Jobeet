@@ -22,10 +22,16 @@ class JobController extends Controller
     {
         $em = $this->getDoctrine()->getManager();
 
-        $jobs =  $em->getRepository('EnsTostainGuillaumeBundle:Job')->getActiveJobs();
+        $categories = $em->getRepository('EnsTostainGuillaumeBundle:Category')->getWithJobs();
 
-        return $this->render('job/index.html.twig', array(
-            'jobs' => $jobs,
+        foreach($categories as $category)
+        {
+            $category->setActiveJobs($em->getRepository('EnsTostainGuillaumeBundle:Job')->getActiveJobs($category->getId(), $this->container->getParameter('max_jobs_on_homepage')));
+            $category->setMoreJobs($em->getRepository('EnsTostainGuillaumeBundle:Job')->countActiveJobs($category->getId()) - $this->container->getParameter('max_jobs_on_homepage'));
+        }
+
+        return $this->render('EnsTostainGuillaumeBundle:job:index.html.twig', array(
+            'categories' => $categories
         ));
     }
 
@@ -47,7 +53,7 @@ class JobController extends Controller
             return $this->redirectToRoute('job_show', array('id' => $job->getId()));
         }
 
-        return $this->render('job/new.html.twig', array(
+        return $this->render('EnsTostainGuillaumeBundle:job:new.html.twig', array(
             'job' => $job,
             'form' => $form->createView(),
         ));
@@ -59,9 +65,14 @@ class JobController extends Controller
      */
     public function showAction(Job $job)
     {
+
+        $em = $this->getDoctrine()->getManager();
+
+        $job = $em->getRepository('EnsTostainGuillaumeBundle:Job')->getActiveJob($job);
+
         $deleteForm = $this->createDeleteForm($job);
 
-        return $this->render('job/show.html.twig', array(
+        return $this->render('EnsTostainGuillaumeBundle:job:show.html.twig', array(
             'job' => $job,
             'delete_form' => $deleteForm->createView(),
         ));
@@ -85,7 +96,7 @@ class JobController extends Controller
             return $this->redirectToRoute('job_edit', array('id' => $job->getId()));
         }
 
-        return $this->render('job/edit.html.twig', array(
+        return $this->render('EnsTostainGuillaumeBundle:job:edit.html.twig', array(
             'job' => $job,
             'edit_form' => $editForm->createView(),
             'delete_form' => $deleteForm->createView(),

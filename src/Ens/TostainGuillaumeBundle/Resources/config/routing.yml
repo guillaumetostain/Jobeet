@@ -2,6 +2,10 @@ ens_tostain_guillaume_job:
     resource: "@EnsTostainGuillaumeBundle/Resources/config/routing/job.yml"
     prefix:   /job
 
+ens_tostain_guillaume_category:
+    path:  /category/{slug}/{page}
+    defaults: { _controller: EnsTostainGuillaumeBundle:Category:show, page: 1 }
+
 ens_tostain_guillaume_homepage:
     path:     /
     defaults: { _controller: EnsTostainGuillaumeBundle:Job:index }
