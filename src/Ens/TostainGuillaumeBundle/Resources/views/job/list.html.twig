@@ -1,4 +1,4 @@
-<table class="jobs">
+<table class="table table-striped">
     {% for job in jobs %}
         <tr class="{{ cycle(['even', 'odd'], loop.index) }}">
             <td class="location">{{ job.location }}</td>
