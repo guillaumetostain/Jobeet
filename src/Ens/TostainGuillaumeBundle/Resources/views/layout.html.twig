@@ -15,6 +15,11 @@
     <link rel="shortcut icon" href="{{ asset('bundles/enstostainguillaume/images/favicon.ico') }}" />
 </head>
 <body>
+{% if app.session.hasFlash('notice') %}
+    <div>
+        {{ app.session.flash('notice') }}
+    </div>
+{% endif %}
 <div id="container">
     <div id="header">
         <div class="content">
@@ -42,6 +47,17 @@
                 </div>
             </div>
         </div>
+    </div>
+
+    <div id="job_history">
+        Recent viewed jobs:
+        <ul>
+            {% for job in app.session.get('job_history') %}
+                <li>
+                    <a href="{{ path('job_show', { 'id': job.id, 'company': job.companyslug, 'location': job.locationslug, 'position': job.positionslug }) }}">{{ job.position }} - {{ job.company }}</a>
+                </li>
+            {% endfor %}
+        </ul>
     </div>
 
     <div id="content">

@@ -9,3 +9,11 @@ ens_tostain_guillaume_category:
 ens_tostain_guillaume_homepage:
     path:     /
     defaults: { _controller: EnsTostainGuillaumeBundle:Job:index }
+
+login:
+    path:   /login
+    defaults:  { _controller: EnsTostainGuillaumeBundle:Default:login }
+login_check:
+    path:   /login_check
+logout:
+    path:   /logout
