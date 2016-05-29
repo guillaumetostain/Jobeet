@@ -1,0 +1,6 @@
+category_show:
+    path:     /{company}/{location}/{id}/{position}
+    defaults: { _controller: "EnsTostainGuillaumeBundle:Category:show" }
+    methods:  GET
+    requirements:
+            id:  \d+
